@@ -428,4 +428,5 @@ if __name__ == "__main__":
     dashboard = FraudAnalysisDashboard('fraud_detection_results.csv')
     
     # Generate all analysis and visualizations
+
     dashboard.generate_all_analysis()
