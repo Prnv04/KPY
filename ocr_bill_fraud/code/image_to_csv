@@ -1,0 +1,471 @@
+// import React, { useState } from "react";
+// import Tesseract from "tesseract.js";
+
+// export default function ImageOCR() {
+//   const [image, setImage] = useState(null);
+//   const [billData, setBillData] = useState(null);
+//   const [loading, setLoading] = useState(false);
+
+//   const handleImageUpload = (e) => {
+//     setImage(e.target.files[0]);
+//     setBillData(null);
+//   };
+
+//   // 🔥 OCR TEXT → STRUCTURED BILL DATA
+//   const extractStructuredData = (rawText) => {
+//     const lines = rawText.split("\n");
+
+//     const items = [];
+//     let total = null;
+//     let paid = null;
+//     let change = null;
+
+//     const IGNORE_KEYWORDS = [
+//       "TOTAL",
+//       "SUBTTL",
+//       "SUBTOTAL",
+//       "CASH",
+//       "CHANGE",
+//       "TAX",
+//       "VAT",
+//       "SVC",
+//       "SERVICE",
+//       "PB1"
+//     ];
+
+//     lines.forEach((line) => {
+//       const cleanLine = line.trim().toUpperCase();
+
+//       // -------- TOTAL --------
+//       if (cleanLine.startsWith("TOTAL")) {
+//         const match = cleanLine.match(/(\d{1,3},\d{3})/);
+//         if (match) total = parseInt(match[1].replace(",", ""));
+//         return;
+//       }
+
+//       // -------- CASH PAID --------
+//       if (cleanLine.startsWith("CASH")) {
+//         const match = cleanLine.match(/(\d{1,3},\d{3})/);
+//         if (match) paid = parseInt(match[1].replace(",", ""));
+//         return;
+//       }
+
+//       // -------- CHANGE --------
+//       if (cleanLine.startsWith("CHANGE")) {
+//         const match = cleanLine.match(/(\d+)/);
+//         if (match) change = parseInt(match[1]);
+//         return;
+//       }
+
+//       // -------- ITEM LINE --------
+//       const itemMatch = cleanLine.match(
+//         /^(\d+\s)?([A-Z\s]+)\s+(\d{1,3},\d{3})$/
+//       );
+
+//       if (itemMatch) {
+//         const name = itemMatch[2].trim();
+
+//         // ❌ Skip summary lines
+//         if (IGNORE_KEYWORDS.some(k => name.includes(k))) return;
+
+//         items.push({
+//           item_name: name,
+//           claimed_amount: parseInt(itemMatch[3].replace(",", "")),
+//           quantity: 1
+//         });
+//       }
+//     });
+
+//     return { items, total, paid, change };
+//   };
+
+//   const extractText = async () => {
+//     if (!image) return alert("Upload an image first");
+
+//     setLoading(true);
+
+//     const result = await Tesseract.recognize(image, "eng");
+//     const rawText = result.data.text;
+
+//     const structuredData = extractStructuredData(rawText);
+//     setBillData(structuredData);
+
+//     setLoading(false);
+//   };
+
+//   return (
+//     <div>
+//       <input
+//         type="file"
+//         accept="image/jpeg,image/png"
+//         onChange={handleImageUpload}
+//       />
+
+//       <br /><br />
+
+//       <button onClick={extractText} disabled={loading}>
+//         {loading ? "Extracting..." : "Extract Bill Data"}
+//       </button>
+
+//       <hr />
+
+//       {billData && (
+//         <>
+//           <h2>🧾 Bill Items</h2>
+
+//           {billData.items.length === 0 && <p>No items detected</p>}
+
+//           {billData.items.map((item, index) => (
+//             <div
+//               key={index}
+//               style={{
+//                 background: "#f9f9f9",
+//                 padding: "15px",
+//                 marginBottom: "10px",
+//                 borderRadius: "8px",
+//                 borderLeft: "5px solid green"
+//               }}
+//             >
+//               <p><strong>Item:</strong> {item.item_name}</p>
+//               <p><strong>Amount:</strong> ₹{item.claimed_amount} INR</p>
+//               <p><strong>Quantity:</strong> {item.quantity}</p>
+//             </div>
+//           ))}
+
+//           <h2>📊 Bill Summary</h2>
+//           <p><strong>Total Amount:</strong> ₹{billData.total} INR</p>
+//           <p><strong>Paid (Cash):</strong> ₹{billData.paid} INR</p>
+//           <p><strong>Change Returned:</strong> ₹{billData.change} INR</p>
+//         </>
+//       )}
+//     </div>
+//   );
+// }
+import React, { useState } from "react";
+import Tesseract from "tesseract.js";
+
+export default function ImageOCR() {
+  const [image, setImage] = useState(null);
+  const [billData, setBillData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleImageUpload = (e) => {
+    setImage(e.target.files[0]);
+    setBillData(null);
+  };
+
+  // 🔥 IMPROVED PARSER (FIXES TWIST DONUT ISSUE)
+//   const extractStructuredData = (rawText) => {
+//     const lines = rawText.split("\n");
+
+//     const items = [];
+//     let total = null;
+//     let paid = null;
+//     let change = null;
+
+//     const IGNORE = [
+//       "TOTAL",
+//       "SUBTOTAL",
+//       "SUBTTL",
+//       "CASH",
+//       "CHANGE",
+//       "TAX",
+//       "VAT",
+//       "SVC",
+//       "SERVICE",
+//       "PB1"
+//     ];
+
+//     lines.forEach((line) => {
+//       const clean = line.toUpperCase().replace(/\s+/g, " ").trim();
+
+//       // ---- TOTAL ----
+//       if (clean.startsWith("TOTAL")) {
+//         const m = clean.match(/(\d{1,3},\d{3})/);
+//         if (m) total = parseInt(m[1].replace(",", ""));
+//         return;
+//       }
+
+//       // ---- CASH ----
+//       if (clean.startsWith("CASH")) {
+//         const m = clean.match(/(\d{1,3},\d{3})/);
+//         if (m) paid = parseInt(m[1].replace(",", ""));
+//         return;
+//       }
+
+//       // ---- CHANGE ----
+//       if (clean.startsWith("CHANGE")) {
+//         const m = clean.match(/(\d+)/);
+//         if (m) change = parseInt(m[1]);
+//         return;
+//       }
+
+//       // ---- ITEM LINE (ROBUST) ----
+//       const itemMatch = clean.match(
+//         /^(?:\d+\s+)?([A-Z][A-Z\s]+?)\s+(\d{1,3},\d{3})/
+//       );
+
+//       if (!itemMatch) return;
+
+//       const name = itemMatch[1].trim();
+
+//       if (IGNORE.some(k => name.includes(k))) return;
+
+//       items.push({
+//         item_name: name,
+//         claimed_amount: parseInt(itemMatch[2].replace(",", "")),
+//         quantity: 1
+//       });
+//     });
+
+//     return { items, total, paid, change };
+//   };
+
+// const extractStructuredData = (rawText) => {
+//   const lines = rawText.split("\n");
+
+//   const items = [];
+//   let total = null;
+//   let paid = null;
+//   let change = null;
+
+//   const IGNORE = [
+//     "TOTAL",
+//     "SUBTOTAL",
+//     "SUBTTL",
+//     "CASH",
+//     "CHANGE",
+//     "TAX",
+//     "VAT",
+//     "SVC",
+//     "SERVICE",
+//     "PB1"
+//   ];
+
+//   lines.forEach((line) => {
+//     const upper = line.toUpperCase();
+
+//     // ---------- TOTAL ----------
+//     if (upper.includes("TOTAL")) {
+//       const m = upper.match(/(\d{1,3},\d{3})/);
+//       if (m) total = parseInt(m[1].replace(",", ""));
+//       return;
+//     }
+
+//     // ---------- CASH ----------
+//     if (upper.includes("CASH")) {
+//       const m = upper.match(/(\d{1,3},\d{3})/);
+//       if (m) paid = parseInt(m[1].replace(",", ""));
+//       return;
+//     }
+
+//     // ---------- CHANGE ----------
+//     if (upper.includes("CHANGE")) {
+//       const m = upper.match(/(\d+)/);
+//       if (m) change = parseInt(m[1]);
+//       return;
+//     }
+
+//     // ---------- ITEM LINE ----------
+//     const priceMatch = upper.match(/(\d{1,3},\d{3})/);
+//     if (!priceMatch) return;
+
+//     const price = parseInt(priceMatch[1].replace(",", ""));
+
+//     // Text BEFORE price = item name
+//     const namePart = upper.split(priceMatch[1])[0]
+//       .replace(/^\d+/, "")   // remove leading quantity
+//       .trim();
+
+//     if (!namePart) return;
+//     if (IGNORE.some(k => namePart.includes(k))) return;
+
+//     items.push({
+//       item_name: namePart,
+//       claimed_amount: price,
+//       quantity: 1
+//     });
+//   });
+
+//   return { items, total, paid, change };
+// };
+
+
+const extractStructuredData = (rawText) => {
+  const lines = rawText.split("\n");
+
+  const items = [];
+  let total = null;
+  let paid = null;
+  let change = null;
+
+  const IGNORE = [
+    "TOTAL",
+    "SUBTOTAL",
+    "SUBTTL",
+    "CASH",
+    "CHANGE",
+    "TAX",
+    "VAT",
+    "SVC",
+    "SERVICE",
+    "PB1"
+  ];
+
+  lines.forEach((line) => {
+    const upper = line.toUpperCase();
+
+    // -------- PRICE MATCH (comma OR dot OR plain) --------
+    const priceMatch = upper.match(/(\d{1,3}[,\.]\d{3}|\d{4,6})/);
+
+    // -------- TOTAL --------
+    if (upper.includes("TOTAL") && priceMatch) {
+      total = parseInt(priceMatch[1].replace(/[,.]/g, ""));
+      return;
+    }
+
+    // -------- CASH --------
+    if (upper.includes("CASH") && priceMatch) {
+      paid = parseInt(priceMatch[1].replace(/[,.]/g, ""));
+      return;
+    }
+
+    // -------- CHANGE --------
+    if (upper.includes("CHANGE")) {
+      const m = upper.match(/(\d+)/);
+      if (m) change = parseInt(m[1]);
+      return;
+    }
+
+    // -------- ITEM LINE --------
+    if (!priceMatch) return;
+
+    const price = parseInt(priceMatch[1].replace(/[,.]/g, ""));
+
+    const name = upper
+      .split(priceMatch[1])[0]
+      .replace(/^\d+/, "")
+      .trim();
+
+    if (!name) return;
+    if (IGNORE.some(k => name.includes(k))) return;
+
+    items.push({
+      item_name: name,
+      claimed_amount: price,
+      quantity: 1
+    });
+  });
+
+  return { items, total, paid, change };
+};
+
+// ================= AUTO CSV CREATION =================
+
+const convertToCSV = (billData) => {
+  const TAX_RATE = 0.05; // 5% tax
+
+  const headers = [
+    "item_name",
+    "item_category",
+    "claimed_amount",
+    "quantity",
+    "total_amount",
+    "change",
+    "tax_amount"
+  ];
+
+  const rows = billData.items.map(item => {
+    const totalAmount = item.claimed_amount * item.quantity;
+    const taxAmount = Math.round(totalAmount * TAX_RATE);
+
+    return [
+      `"${item.item_name}"`,
+      "food",
+      item.claimed_amount,
+      item.quantity,
+      totalAmount,
+      billData.change ?? "",
+      taxAmount
+    ].join(",");
+  });
+
+  return [headers.join(","), ...rows].join("\n");
+};
+
+const downloadCSV = (billData) => {
+  const csv = convertToCSV(billData);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "final_receipt_dataset.csv";
+  link.click();
+};
+
+
+
+
+
+
+  const extractText = async () => {
+    if (!image) return alert("Upload an image first");
+
+    setLoading(true);
+
+    const result = await Tesseract.recognize(image, "eng");
+    const rawText = result.data.text;
+
+    const structured = extractStructuredData(rawText);
+    setBillData(structured);
+   downloadCSV(structured);
+
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <input
+        type="file"
+        accept="image/jpeg,image/png"
+        onChange={handleImageUpload}
+      />
+
+      <br /><br />
+
+      <button onClick={extractText} disabled={loading}>
+        {loading ? "Extracting..." : "Extract Bill Data"}
+      </button>
+
+      <hr />
+
+      {billData && (
+        <>
+          <h2>🧾 Bill Items</h2>
+
+          {billData.items.map((item, i) => (
+            <div
+              key={i}
+              style={{
+                background: "#f9f9f9",
+                padding: "12px",
+                marginBottom: "8px",
+                borderLeft: "5px solid green",
+                borderRadius: "6px"
+              }}
+            >
+              <p><b>Item:</b> {item.item_name}</p>
+              <p><b>Amount:</b> ₹{item.claimed_amount} INR</p>
+              <p><b>Quantity:</b> {item.quantity}</p>
+            </div>
+          ))}
+
+          <h2>📊 Bill Summary</h2>
+          <p><b>Total:</b> ₹{billData.total} INR</p>
+          <p><b>Paid (Cash):</b> ₹{billData.paid} INR</p>
+          <p><b>Change:</b> ₹{billData.change} INR</p>
+        </>
+      )}
+    </div>
+  );
+}
