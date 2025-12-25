@@ -1,0 +1,53 @@
+{
+  "total_transactions": 2000,
+  "flagged_count": 166,
+  "approved_count": 1834,
+  "fraud_rate": 8.3,
+  "approval_rate": 91.7,
+  "high_risk_count": 155,
+  "medium_risk_count": 11,
+  "low_risk_count": 1834,
+  "avg_anomaly_score": 0.13,
+  "total_amount_flagged": 2114144.82,
+  "total_amount_approved": 3795928.9,
+  "risk_distribution": {
+    "HIGH": 155,
+    "MEDIUM": 11,
+    "LOW": 1834
+  },
+  "rule_performance": {
+    "RAPID_TXN_BURST": 148,
+    "GEO_MISMATCH": 109,
+    "HIGH_AMOUNT_SPIKE": 96,
+    "VELOCITY_ATTACK": 51,
+    "NEW_DEVICE_HIGH_AMOUNT": 21,
+    "LONG_INACTIVITY_SPIKE": 10,
+    "ODD_HOUR_TXN": 8
+  },
+  "daily_trends": {
+    "2025-12-20": {
+      "transaction_id": 158,
+      "final_decision": 15
+    },
+    "2025-12-21": {
+      "transaction_id": 394,
+      "final_decision": 35
+    },
+    "2025-12-22": {
+      "transaction_id": 402,
+      "final_decision": 28
+    },
+    "2025-12-23": {
+      "transaction_id": 393,
+      "final_decision": 27
+    },
+    "2025-12-24": {
+      "transaction_id": 418,
+      "final_decision": 32
+    },
+    "2025-12-25": {
+      "transaction_id": 235,
+      "final_decision": 29
+    }
+  }
+}

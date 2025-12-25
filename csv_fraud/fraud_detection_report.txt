@@ -1,0 +1,54 @@
+
+======================================================================
+                FRAUD DETECTION SYSTEM - ANALYSIS REPORT
+======================================================================
+
+Generated on: 2025-12-25 13:03:07
+
+======================================================================
+1. OVERALL STATISTICS
+======================================================================
+
+Total Transactions Analyzed:     2,000
+Flagged as Fraud:                166 (8.3%)
+Approved Transactions:           1,834 (91.7%)
+
+Total Amount Flagged:            ₹2,114,144.82
+Total Amount Approved:           ₹3,795,928.90
+
+Average Anomaly Score:           0.13
+
+======================================================================
+2. RISK LEVEL BREAKDOWN
+======================================================================
+
+HIGH Risk Transactions:          155
+MEDIUM Risk Transactions:        11
+LOW Risk Transactions:           1,834
+
+======================================================================
+3. FRAUD DETECTION RULES PERFORMANCE
+======================================================================
+
+RAPID_TXN_BURST                   148 ( 7.40%)
+GEO_MISMATCH                      109 ( 5.45%)
+HIGH_AMOUNT_SPIKE                  96 ( 4.80%)
+VELOCITY_ATTACK                    51 ( 2.55%)
+NEW_DEVICE_HIGH_AMOUNT             21 ( 1.05%)
+LONG_INACTIVITY_SPIKE              10 ( 0.50%)
+ODD_HOUR_TXN                        8 ( 0.40%)
+
+======================================================================
+4. KEY INSIGHTS
+======================================================================
+
+- Most Common Fraud Pattern: RAPID_TXN_BURST
+- Average Amount (Flagged):  ₹12735.81
+- Average Amount (Approved): ₹2069.75
+
+- Device Change Fraud Rate:  23.74%
+- Location Change Fraud Rate: 100.00%
+
+======================================================================
+END OF REPORT
+======================================================================
